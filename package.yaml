@@ -1,0 +1,39 @@
+name: feature-flipper-postgres
+version: '0.1.0.0'
+synopsis: A minimally obtrusive feature flag library
+description: A minimally obtrusive feature flag library
+category: Web
+author: Todd Mohney
+maintainer: toddmohney@gmail.com
+copyright: 2017 Todd Mohney
+license: MIT
+github: toddmohney/feature-flipper-postgres
+extra-source-files:
+- README.md
+library:
+  source-dirs: src
+  ghc-options:
+  - -Wall
+  - -fwarn-unused-matches
+  - -fwarn-unused-binds
+  - -fwarn-unused-imports
+  default-extensions:
+  - OverloadedStrings
+  exposed-modules:
+  - Lib
+  dependencies:
+  - base >=4.7 && <5
+  - feature-flipper
+tests:
+  feature-flipper-postgres-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    default-extensions:
+    - OverloadedStrings
+    dependencies:
+    - base
+    - feature-flipper-postgres
