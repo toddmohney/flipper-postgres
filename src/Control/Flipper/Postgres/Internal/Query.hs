@@ -1,0 +1,21 @@
+module Control.Flipper.Postgres.Internal.Query
+    ( selectFeatures
+    , findFeature
+    , insertFeature
+    , updateFeature
+    ) where
+
+import           Control.Flipper.Postgres.Models as M
+import qualified Control.Flipper.Types           as T
+
+selectFeatures :: SqlPersistT IO [Entity Feature]
+selectFeatures = selectList [] []
+
+findFeature :: T.FeatureName -> SqlPersistT IO (Maybe (Entity Feature))
+findFeature fName = getBy (UniqueFeatureName fName)
+
+insertFeature :: Feature -> SqlPersistT IO (Key Feature)
+insertFeature = insert
+
+updateFeature :: M.FeatureId -> M.Feature -> SqlPersistT IO ()
+updateFeature = replace

@@ -3,9 +3,7 @@ resolver: lts-8.15
 packages:
 - '.'
 
-- location:
-    git: https://github.com/toddmohney/flipper.git
-    commit: 0.1.0.0
+- location: ../feature-flipper
   extra-dep: true
 
 extra-deps: []

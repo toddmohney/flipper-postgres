@@ -30,12 +30,25 @@ library
   default-extensions: OverloadedStrings
   ghc-options: -Wall -fwarn-unused-matches -fwarn-unused-binds -fwarn-unused-imports
   exposed-modules:
-      Lib
+      Control.Flipper.Postgres.DBAccess
+      Control.Flipper.Postgres.Internal.Query
+      Control.Flipper.Postgres.Models
+      Control.Flipper.Postgres.Query
+      Control.Flipper.Postgres.Types
   other-modules:
       Paths_feature_flipper_postgres
   build-depends:
       base >=4.7 && <5
+    , bytestring
+    , containers
     , feature-flipper
+    , monad-logger
+    , mtl
+    , persistent
+    , persistent-postgresql
+    , persistent-template
+    , text
+    , time
   default-language: Haskell2010
 
 test-suite feature-flipper-postgres-test

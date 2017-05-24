@@ -20,10 +20,23 @@ library:
   default-extensions:
   - OverloadedStrings
   exposed-modules:
-  - Lib
+  - Control.Flipper.Postgres.DBAccess
+  - Control.Flipper.Postgres.Internal.Query
+  - Control.Flipper.Postgres.Models
+  - Control.Flipper.Postgres.Query
+  - Control.Flipper.Postgres.Types
   dependencies:
   - base >=4.7 && <5
+  - bytestring
+  - containers
   - feature-flipper
+  - monad-logger
+  - mtl
+  - persistent
+  - persistent-postgresql
+  - persistent-template
+  - text
+  - time
 tests:
   feature-flipper-postgres-test:
     main: Spec.hs
