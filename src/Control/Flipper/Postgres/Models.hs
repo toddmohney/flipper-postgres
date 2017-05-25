@@ -22,7 +22,7 @@ import           Data.Monoid                 ((<>))
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
-import           Data.Time                   (UTCTime (..))
+import           Data.Time                   (UTCTime (..), getCurrentTime)
 import           Database.Persist.Postgresql
 import           Database.Persist.TH
 
@@ -42,6 +42,16 @@ instance PersistField F.FeatureName where
   toPersistValue = PersistDbSpecific . T.encodeUtf8 . F.unFeatureName
   fromPersistValue (PersistText name) = Right (F.FeatureName name)
   fromPersistValue name = Left ("Not PersistText " <> T.pack (show name))
+
+mkFeature :: F.FeatureName -> Bool -> IO Feature
+mkFeature fName isEnabled = do
+    now <- getCurrentTime
+    return Feature
+        { featureName = fName
+        , featureEnabled = isEnabled
+        , featureUpdated = now
+        , featureCreated = now
+        }
 
 runMigrations :: ConnectionPool -> IO [Text]
 runMigrations = runSqlPool (runMigrationSilent migrateAll)

@@ -17,6 +17,7 @@ data DBAccess m = DBAccess { runDb          :: forall a . m a -> IO a
                            , findFeature    :: T.FeatureName -> m (Maybe (Entity Feature))
                            , insertFeature  :: Feature -> m (Key Feature)
                            , updateFeature  :: FeatureId -> Feature -> m ()
+                           , countFeatures  :: m Int
                            }
 
 db :: ConnectionPool -> DBAccess (SqlPersistT IO)
@@ -25,6 +26,7 @@ db pool = DBAccess { runDb = runDb' pool
                    , findFeature    = Q.findFeature
                    , insertFeature  = Q.insertFeature
                    , updateFeature  = Q.updateFeature
+                   , countFeatures  = Q.countFeatures
                    }
   where
     runDb' :: ConnectionPool -> SqlPersistT IO a -> IO a

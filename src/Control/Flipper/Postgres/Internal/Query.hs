@@ -3,6 +3,7 @@ module Control.Flipper.Postgres.Internal.Query
     , findFeature
     , insertFeature
     , updateFeature
+    , countFeatures
     ) where
 
 import           Control.Flipper.Postgres.Models as M
@@ -19,3 +20,6 @@ insertFeature = insert
 
 updateFeature :: M.FeatureId -> M.Feature -> SqlPersistT IO ()
 updateFeature = replace
+
+countFeatures :: SqlPersistT IO Int
+countFeatures = count ([] :: [Filter Feature])

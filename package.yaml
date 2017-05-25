@@ -47,6 +47,13 @@ tests:
     - -with-rtsopts=-N
     default-extensions:
     - OverloadedStrings
+    - RecordWildCards
     dependencies:
     - base
+    - bytestring
+    - hspec
+    - monad-logger
+    - persistent
+    - persistent-postgresql
+    - feature-flipper
     - feature-flipper-postgres

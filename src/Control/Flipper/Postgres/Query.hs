@@ -6,10 +6,11 @@ module Control.Flipper.Postgres.Query
     , addFeature
     , replaceFeature
     , upsertFeature
+    , featureCount
     ) where
 
-import           Control.Monad (void)
-import           Data.Time.Clock (getCurrentTime)
+import           Control.Monad                     (void)
+import           Data.Time.Clock                   (getCurrentTime)
 
 import           Control.Flipper.Postgres.DBAccess as DB
 import           Control.Flipper.Postgres.Models
@@ -44,12 +45,6 @@ replaceFeature fId feature DBAccess{..} = do
     now <- liftIO getCurrentTime
     liftIO $ runDb (updateFeature fId (feature { featureUpdated = now }))
 
-mkFeature :: T.FeatureName -> Bool -> IO Feature
-mkFeature fName isEnabled = do
-    now <- getCurrentTime
-    return Feature
-        { featureName = fName
-        , featureEnabled = isEnabled
-        , featureUpdated = now
-        , featureCreated = now
-        }
+featureCount :: (MonadIO app, Monad m)
+             => DBAccess m -> app Int
+featureCount DBAccess{..} = liftIO $ runDb countFeatures
