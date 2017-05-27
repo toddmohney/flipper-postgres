@@ -16,7 +16,7 @@ import           Control.Monad.Trans (MonadTrans)
 import qualified Data.Map.Strict                   as Map
 import           Database.Persist.Postgresql       (ConnectionPool)
 
-import           Control.Flipper.Postgres.DBAccess
+import           Control.Flipper.Postgres.DBAccess (DBAccess, db)
 import           Control.Flipper.Postgres.Models
 import qualified Control.Flipper.Postgres.Query    as Q
 import           Control.Flipper.Types             (FeatureName, Features (..),
@@ -48,12 +48,6 @@ instance (MonadIO m) => HasFeatureFlags (FlipperT m) where
             Nothing             -> return Nothing
             (Just (Entity _ f)) -> return $ Just (featureEnabled f)
 
-instance (MonadIO m) => ModifiesFeatureFlags (FlipperT m) where
-    updateFeatures = undefined
-
-    updateFeature fName isEnabled = ask >>= \Config{..} ->
-        Q.upsertFeature fName isEnabled appDB
-
 instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m) where
     getFeatures = lift getFeatures
     getFeature = lift . getFeature
@@ -61,6 +55,21 @@ instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (StateT s m) where
 instance (MonadIO m, HasFeatureFlags m) => HasFeatureFlags (ReaderT s m) where
     getFeatures = lift getFeatures
     getFeature = lift . getFeature
+
+instance (MonadIO m) => ModifiesFeatureFlags (FlipperT m) where
+    updateFeatures features =
+        void $ Map.traverseWithKey updateFeature (unFeatures features)
+
+    updateFeature fName isEnabled = ask >>= \Config{..} ->
+        Q.upsertFeature fName isEnabled appDB
+
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (StateT s m) where
+    updateFeatures = lift . updateFeatures
+    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
+
+instance (MonadIO m, ModifiesFeatureFlags m) => ModifiesFeatureFlags (ReaderT s m) where
+    updateFeatures = lift . updateFeatures
+    updateFeature fName isEnabled = lift $ updateFeature fName isEnabled
 
 modelsToFeatures :: [Entity Feature] -> Features
 modelsToFeatures fs = Features $ Map.fromList $ map mkFeature' fs
