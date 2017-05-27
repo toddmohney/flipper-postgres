@@ -7,13 +7,14 @@ module Control.Flipper.Postgres.Query
     , replaceFeature
     , upsertFeature
     , featureCount
+    , M.mkFeature
     ) where
 
 import           Control.Monad                     (void)
 import           Data.Time.Clock                   (getCurrentTime)
 
 import           Control.Flipper.Postgres.DBAccess as DB
-import           Control.Flipper.Postgres.Models
+import           Control.Flipper.Postgres.Models as M
 import qualified Control.Flipper.Types             as T
 import           Control.Monad.IO.Class            (MonadIO, liftIO)
 
