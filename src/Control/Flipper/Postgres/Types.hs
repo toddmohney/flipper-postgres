@@ -12,7 +12,7 @@ module Control.Flipper.Postgres.Types
 import           Control.Monad.IO.Class            (MonadIO)
 import           Control.Monad.Reader
 import           Control.Monad.State
-import           Control.Monad.Trans (MonadTrans)
+import           Control.Monad.Trans               (MonadTrans)
 import qualified Data.Map.Strict                   as Map
 import           Database.Persist.Postgresql       (ConnectionPool)
 

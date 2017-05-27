@@ -2,14 +2,14 @@
 
 module Control.Flipper.PostgresSpec (main, spec) where
 
-import           Control.Monad (void)
+import           Control.Monad                   (void)
 import           Control.Monad.Reader
 import           Control.Monad.State
 import           Test.Hspec
 
-import           Control.Flipper.Postgres as FP
+import           Control.Flipper.Postgres        as FP
 import           Control.Flipper.Postgres.Models (ConnectionPool)
-import           Control.Flipper.Postgres.Query as Q
+import           Control.Flipper.Postgres.Query  as Q
 import qualified Helpers.Config                  as Cfg
 
 main :: IO ()
