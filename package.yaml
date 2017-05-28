@@ -52,6 +52,7 @@ tests:
     dependencies:
     - base
     - bytestring
+    - containers
     - hspec
     - monad-logger
     - mtl
