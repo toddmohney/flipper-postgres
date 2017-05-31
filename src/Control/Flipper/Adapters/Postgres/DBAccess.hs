@@ -1,16 +1,16 @@
 {-# LANGUAGE ExistentialQuantification #-}
 {-# LANGUAGE Rank2Types                #-}
 
-module Control.Flipper.Postgres.DBAccess
+module Control.Flipper.Adapters.Postgres.DBAccess
     ( DBAccess(..)
     , db
     ) where
 
-import           Control.Monad.IO.Class                  (liftIO)
+import           Control.Monad.IO.Class                           (liftIO)
 
-import qualified Control.Flipper.Postgres.Internal.Query as Q
-import           Control.Flipper.Postgres.Models
-import qualified Control.Flipper.Types                   as T
+import qualified Control.Flipper.Adapters.Postgres.Internal.Query as Q
+import           Control.Flipper.Adapters.Postgres.Models
+import qualified Control.Flipper.Types                            as T
 
 data DBAccess m = DBAccess { runDb          :: forall a . m a -> IO a
                            , selectFeatures :: m [Entity Feature]

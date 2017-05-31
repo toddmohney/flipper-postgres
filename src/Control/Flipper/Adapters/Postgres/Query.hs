@@ -1,6 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
 
-module Control.Flipper.Postgres.Query
+module Control.Flipper.Adapters.Postgres.Query
     ( getFeatures
     , getFeatureByName
     , addFeature
@@ -10,13 +10,13 @@ module Control.Flipper.Postgres.Query
     , M.mkFeature
     ) where
 
-import           Control.Monad                     (void)
-import           Data.Time.Clock                   (getCurrentTime)
+import           Control.Monad                              (void)
+import           Data.Time.Clock                            (getCurrentTime)
 
-import           Control.Flipper.Postgres.DBAccess as DB
-import           Control.Flipper.Postgres.Models   as M
-import qualified Control.Flipper.Types             as T
-import           Control.Monad.IO.Class            (MonadIO, liftIO)
+import           Control.Flipper.Adapters.Postgres.DBAccess as DB
+import           Control.Flipper.Adapters.Postgres.Models   as M
+import qualified Control.Flipper.Types                      as T
+import           Control.Monad.IO.Class                     (MonadIO, liftIO)
 
 getFeatures :: (MonadIO app, Monad m)
             => DBAccess m -> app [Entity Feature]

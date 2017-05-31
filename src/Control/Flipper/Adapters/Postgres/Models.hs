@@ -13,8 +13,8 @@
 {-# LANGUAGE TypeFamilies               #-}
 {-# LANGUAGE TypeOperators              #-}
 
-module Control.Flipper.Postgres.Models
-    ( module Control.Flipper.Postgres.Models
+module Control.Flipper.Adapters.Postgres.Models
+    ( module Control.Flipper.Adapters.Postgres.Models
     , module Database.Persist.Postgresql
     ) where
 

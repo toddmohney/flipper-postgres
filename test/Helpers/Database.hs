@@ -3,15 +3,16 @@ module Helpers.Database
     , setupTestDatabase
     ) where
 
-import           Control.Monad.Logger            (runNoLoggingT)
-import           Data.ByteString.Char8           (pack)
-import           Database.Persist.Postgresql     (ConnectionPool,
-                                                  ConnectionString,
-                                                  createPostgresqlPool,
-                                                  rawExecute, runSqlPool)
-import           System.Environment              (getEnv, lookupEnv)
+import           Control.Monad.Logger                     (runNoLoggingT)
+import           Data.ByteString.Char8                    (pack)
+import           Database.Persist.Postgresql              (ConnectionPool,
+                                                           ConnectionString,
+                                                           createPostgresqlPool,
+                                                           rawExecute,
+                                                           runSqlPool)
+import           System.Environment                       (getEnv, lookupEnv)
 
-import           Control.Flipper.Postgres.Models (runMigrations)
+import           Control.Flipper.Adapters.Postgres.Models (runMigrations)
 
 data DbConnectionString =
   DbConnectionString { dbname   :: String

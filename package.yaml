@@ -20,12 +20,11 @@ library:
   default-extensions:
   - OverloadedStrings
   exposed-modules:
-  - Control.Flipper.Postgres
-  - Control.Flipper.Postgres.DBAccess
-  - Control.Flipper.Postgres.Internal.Query
-  - Control.Flipper.Postgres.Models
-  - Control.Flipper.Postgres.Query
-  - Control.Flipper.Postgres.Types
+  - Control.Flipper.Adapters.Postgres
+  - Control.Flipper.Adapters.Postgres.DBAccess
+  - Control.Flipper.Adapters.Postgres.Internal.Query
+  - Control.Flipper.Adapters.Postgres.Models
+  - Control.Flipper.Adapters.Postgres.Query
   dependencies:
   - base >=4.7 && <5
   - bytestring

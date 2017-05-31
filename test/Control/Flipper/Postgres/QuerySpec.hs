@@ -1,13 +1,13 @@
 module Control.Flipper.Postgres.QuerySpec (main, spec) where
 
-import           Control.Monad                   (void)
+import           Control.Monad                            (void)
 import           Test.Hspec
 
-import           Control.Flipper.Postgres.Models as M
-import qualified Control.Flipper.Postgres.Query  as Q
-import           Control.Flipper.Postgres.Types
-import qualified Control.Flipper.Types           as T
-import qualified Helpers.Config                  as Cfg
+import           Control.Flipper.Adapters.Postgres
+import           Control.Flipper.Adapters.Postgres.Models as M
+import qualified Control.Flipper.Adapters.Postgres.Query  as Q
+import qualified Control.Flipper.Types                    as T
+import qualified Helpers.Config                           as Cfg
 
 main :: IO ()
 main = hspec spec

@@ -1,4 +1,4 @@
-module Control.Flipper.Postgres.Internal.Query
+module Control.Flipper.Adapters.Postgres.Internal.Query
     ( selectFeatures
     , findFeature
     , insertFeature
@@ -6,8 +6,8 @@ module Control.Flipper.Postgres.Internal.Query
     , countFeatures
     ) where
 
-import           Control.Flipper.Postgres.Models as M
-import qualified Control.Flipper.Types           as T
+import           Control.Flipper.Adapters.Postgres.Models as M
+import qualified Control.Flipper.Types                    as T
 
 selectFeatures :: SqlPersistT IO [Entity Feature]
 selectFeatures = selectList [] []

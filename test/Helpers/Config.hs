@@ -2,9 +2,9 @@ module Helpers.Config
     ( withConfig
     ) where
 
-import qualified Control.Flipper.Postgres.DBAccess as DBA
-import           Control.Flipper.Postgres.Types
-import qualified Helpers.Database                  as DB
+import           Control.Flipper.Adapters.Postgres
+import qualified Control.Flipper.Adapters.Postgres.DBAccess as DBA
+import qualified Helpers.Database                           as DB
 
 withConfig :: (Config -> IO ()) -> IO ()
 withConfig action = do
