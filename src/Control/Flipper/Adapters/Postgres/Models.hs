@@ -43,6 +43,9 @@ instance PersistField F.FeatureName where
   fromPersistValue (PersistText name) = Right (F.FeatureName name)
   fromPersistValue name = Left ("Not PersistText " <> T.pack (show name))
 
+{- |
+Convienience constructor
+-}
 mkFeature :: F.FeatureName -> Bool -> IO Feature
 mkFeature fName isEnabled = do
     now <- getCurrentTime
@@ -53,5 +56,8 @@ mkFeature fName isEnabled = do
         , featureCreated = now
         }
 
+{- |
+Performs non-destructive database schema migrations.
+-}
 runMigrations :: ConnectionPool -> IO [Text]
 runMigrations = runSqlPool (runMigrationSilent migrateAll)

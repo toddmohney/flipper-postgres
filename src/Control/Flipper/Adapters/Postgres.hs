@@ -24,6 +24,9 @@ import           Control.Flipper.Types                      (FeatureName,
 
 import           Control.Flipper
 
+{- |
+The 'FlipperT' transformer for postgres-persisted feature switchable computation.
+-}
 newtype FlipperT m a = FlipperT { unFlipper :: ReaderT Config m a }
     deriving ( Functor
              , Applicative
@@ -32,12 +35,6 @@ newtype FlipperT m a = FlipperT { unFlipper :: ReaderT Config m a }
              , MonadReader Config
              , MonadTrans
              )
-
-runFlipperT :: (MonadIO m)
-            => ConnectionPool -> FlipperT m a -> m a
-runFlipperT pool f =
-    let cfg = Config pool (db pool)
-    in runReaderT (unFlipper f) cfg
 
 instance (MonadIO m) => HasFeatureFlags (FlipperT m) where
     getFeatures = ask >>= \Config{..} ->
@@ -55,6 +52,15 @@ instance (MonadIO m) => ModifiesFeatureFlags (FlipperT m) where
 
     updateFeature fName isEnabled = ask >>= \Config{..} ->
         Q.upsertFeature fName isEnabled appDB
+
+{- |
+Evaluates a feature-switched computation, returning the final value
+-}
+runFlipperT :: (MonadIO m)
+            => ConnectionPool -> FlipperT m a -> m a
+runFlipperT pool f =
+    let cfg = Config pool (db pool)
+    in runReaderT (unFlipper f) cfg
 
 modelsToFeatures :: [Entity Feature] -> Features
 modelsToFeatures fs = Features $ Map.fromList $ map mkFeature' fs
