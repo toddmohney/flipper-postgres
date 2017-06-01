@@ -1,5 +1,5 @@
 name: feature-flipper-postgres
-version: '0.1.0.0'
+version: '0.1.0.1'
 synopsis: A minimally obtrusive feature flag library
 description: A minimally obtrusive feature flag library
 category: Web
@@ -26,7 +26,7 @@ library:
   - Control.Flipper.Adapters.Postgres.Models
   - Control.Flipper.Adapters.Postgres.Query
   dependencies:
-  - base >=4.7 && <5
+  - base >=4.8 && <5
   - bytestring
   - containers
   - feature-flipper
