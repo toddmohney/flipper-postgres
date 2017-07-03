@@ -18,13 +18,11 @@ module Control.Flipper.Adapters.Postgres.Models
     , module Database.Persist.Postgresql
     ) where
 
-import qualified Data.ByteString.Char8       as C8
 import qualified Data.Map.Strict                            as Map
 import           Data.Monoid                 ((<>))
 import qualified Data.Set as S
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
-import qualified Data.Text.Encoding          as T
 import           Data.Time                   (UTCTime (..), getCurrentTime)
 import           Database.Persist.Postgresql
 import           Database.Persist.TH
@@ -49,7 +47,7 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
 |]
 
 instance PersistField F.FeatureName where
-  toPersistValue = PersistDbSpecific . T.encodeUtf8 . F.unFeatureName
+  toPersistValue = PersistText . F.unFeatureName
   fromPersistValue (PersistText name) = Right (F.FeatureName name)
   fromPersistValue name = Left ("Not PersistText " <> T.pack (show name))
 
@@ -59,9 +57,9 @@ instance PersistField F.ActorId where
   fromPersistValue e = Left ("Not PersistByteString " <> T.pack (show e))
 
 instance PersistField F.Percentage where
-  toPersistValue (F.Percentage pct) = PersistDbSpecific . C8.pack $ show pct
+  toPersistValue (F.Percentage pct) = PersistInt64 (fromIntegral pct)
   fromPersistValue (PersistInt64 pct) = Right (F.Percentage (fromIntegral pct))
-  fromPersistValue e = Left ("Not PersistDbSpecific " <> T.pack (show e))
+  fromPersistValue e = Left ("Not PersistInt64 " <> T.pack (show e))
 
 {- |
 Convienience constructor

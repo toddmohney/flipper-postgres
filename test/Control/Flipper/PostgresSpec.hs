@@ -47,8 +47,8 @@ spec = around Cfg.withConfig $ do
                 st `shouldBe` MyState 0
 
         describe "a persisted feature" $ do
-            it "runs features when it is enabled" $ \(Config pool dbAccess) -> do
-                f <- Q.mkFeature (FP.FeatureName "enabled-feature") True
+            it "runs a feature when it is enabled" $ \(Config pool dbAccess) -> do
+                let f = (FP.mkFeature "enabled-feature") { isEnabled = True }
                 void $ Q.addFeature f dbAccess
 
                 (_, st) <- runMyContext pool (MyState 0) $ do
@@ -56,8 +56,8 @@ spec = around Cfg.withConfig $ do
 
                 st `shouldBe` MyState 1
 
-            it "does not run features it is are disabled" $ \(Config pool dbAccess) -> do
-                f <- Q.mkFeature (FP.FeatureName "disabled-feature") False
+            it "does not run disabled features" $ \(Config pool dbAccess) -> do
+                let f = (FP.mkFeature "disabled-feature") { isEnabled = False }
                 void $ Q.addFeature f dbAccess
 
                 (_, st) <- runMyContext pool (MyState 0) $ do
@@ -100,4 +100,6 @@ spec = around Cfg.withConfig $ do
                     fs'' <- FP.getFeatures
                     liftIO $ all (\f -> isEnabled f == False) (Map.elems (unFeatures fs'')) `shouldBe` True
 
-
+    describe "enabling a feature on a per-user basis" $ do
+        it "runs a feature for enabled users" $ \(Config _ _) -> do
+            pending

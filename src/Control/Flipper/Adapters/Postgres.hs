@@ -15,7 +15,6 @@ import qualified Data.Map.Strict                            as Map
 import           Database.Persist.Postgresql                (ConnectionPool)
 
 import           Control.Flipper.Adapters.Postgres.DBAccess (DBAccess, db)
-import           Control.Flipper.Adapters.Postgres.Models   (Entity(..), modelsToFeatures, modelToFeature)
 import qualified Control.Flipper.Adapters.Postgres.Query    as Q
 import           Control.Flipper.Types                      (FeatureName,
                                                              Features (..),
@@ -37,21 +36,16 @@ newtype FlipperT m a = FlipperT { unFlipper :: ReaderT Config m a }
              )
 
 instance (MonadIO m) => HasFeatureFlags (FlipperT m) where
-    getFeatures = ask >>= \Config{..} ->
-        modelsToFeatures <$> Q.getFeatures appDB
+    getFeatures = ask >>= \Config{..} -> Q.getFeatures appDB
 
-    getFeature name = ask >>= \Config{..} -> do
-        mFeature <- Q.getFeatureByName name appDB
-        case mFeature of
-            Nothing             -> return Nothing
-            (Just (Entity _ feature)) -> return $ Just (modelToFeature feature)
+    getFeature name = ask >>= \Config{..} -> Q.getFeatureByName name appDB
 
 instance (MonadIO m) => ModifiesFeatureFlags (FlipperT m) where
     updateFeatures features =
         void $ Map.traverseWithKey updateFeature (unFeatures features)
 
-    updateFeature fName feature = ask >>= \Config{..} ->
-        Q.upsertFeature fName feature appDB
+    updateFeature _ feature = ask >>= \Config{..} ->
+        Q.upsertFeature feature appDB
 
 {- |
 Evaluates a feature-switched computation, returning the final value
