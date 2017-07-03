@@ -18,6 +18,7 @@ module Control.Flipper.Adapters.Postgres.Models
     , module Database.Persist.Postgresql
     ) where
 
+import qualified Data.ByteString.Char8       as C8
 import qualified Data.Map.Strict                            as Map
 import           Data.Monoid                 ((<>))
 import qualified Data.Set as S
@@ -31,9 +32,16 @@ import           Database.Persist.TH
 import qualified Control.Flipper.Types       as F
 
 share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
-    Feature sql=feature_flipper_features
+    Actor sql=flipper_actors
+        actorId F.ActorId sqltype=bytea
+        featureId FeatureId sqltype=bigint
+        updated UTCTime default=now()
+        created UTCTime default=now()
+
+    Feature sql=flipper_features
         name F.FeatureName sqltype=text
         enabled Bool sqltype=boolean default=false
+        enabledPercentage F.Percentage sqltype=int default=0
         updated UTCTime default=now()
         created UTCTime default=now()
         UniqueFeatureName name
@@ -45,6 +53,16 @@ instance PersistField F.FeatureName where
   fromPersistValue (PersistText name) = Right (F.FeatureName name)
   fromPersistValue name = Left ("Not PersistText " <> T.pack (show name))
 
+instance PersistField F.ActorId where
+  toPersistValue (F.ActorId actorId) = PersistByteString actorId
+  fromPersistValue (PersistByteString actorId) = Right (F.ActorId actorId)
+  fromPersistValue e = Left ("Not PersistByteString " <> T.pack (show e))
+
+instance PersistField F.Percentage where
+  toPersistValue (F.Percentage pct) = PersistDbSpecific . C8.pack $ show pct
+  fromPersistValue (PersistInt64 pct) = Right (F.Percentage (fromIntegral pct))
+  fromPersistValue e = Left ("Not PersistDbSpecific " <> T.pack (show e))
+
 {- |
 Convienience constructor
 -}
@@ -54,6 +72,7 @@ mkFeature fName isEnabled = do
     return Feature
         { featureName = fName
         , featureEnabled = isEnabled
+        , featureEnabledPercentage = 0
         , featureUpdated = now
         , featureCreated = now
         }
@@ -66,7 +85,7 @@ modelToFeature feature = F.Feature
     { F.featureName = featureName feature
     , F.isEnabled = featureEnabled feature
     , F.enabledEntities = S.empty
-    , F.enabledPercentage = 0
+    , F.enabledPercentage = featureEnabledPercentage feature
     }
 
 featureToModel :: F.Feature -> IO Feature
@@ -75,6 +94,7 @@ featureToModel f = do
     return Feature
         { featureName = F.featureName f
         , featureEnabled = F.isEnabled f
+        , featureEnabledPercentage = F.enabledPercentage f
         , featureUpdated = now
         , featureCreated = now
         }

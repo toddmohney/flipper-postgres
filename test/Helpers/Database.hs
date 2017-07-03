@@ -62,7 +62,10 @@ setupTestDatabase pool = do
 
 truncateDatabase :: ConnectionPool -> IO ()
 truncateDatabase pool = do
+    runSqlPool truncateActorsQuery pool
     runSqlPool truncateFeaturesQuery pool
     where
         truncateFeaturesQuery =
-            rawExecute "TRUNCATE TABLE feature_flipper_features RESTART IDENTITY;" []
+            rawExecute "TRUNCATE TABLE flipper_features RESTART IDENTITY CASCADE;" []
+        truncateActorsQuery =
+            rawExecute "TRUNCATE TABLE flipper_actors RESTART IDENTITY CASCADE;" []
