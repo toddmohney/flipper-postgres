@@ -17,10 +17,11 @@ spec = around Cfg.withConfig $ do
     describe "upsertFeature" $ do
         it "creates a new feature when no feature by the given name exists" $ \(Config _ db) -> do
             let name = (T.FeatureName "experimental-feature")
-            Q.upsertFeature name True db
-            (Just (Entity _ feature)) <- Q.getFeatureByName name db
-            featureName feature `shouldBe` name
-            featureEnabled feature `shouldBe` True
+            let feature = (T.mkFeature name) { isEnabled = True }
+            Q.upsertFeature name feature db
+            (Just (Entity _ f)) <- Q.getFeatureByName name db
+            M.featureName f `shouldBe` name
+            M.featureEnabled f `shouldBe` True
 
         it "updates an existing feature when a feature by the given name exists" $ \(Config _ db) -> do
             let name = (T.FeatureName "experimental-feature")
@@ -28,6 +29,7 @@ spec = around Cfg.withConfig $ do
             void $ Q.addFeature f db
             Q.featureCount db `shouldReturn` 1
 
-            Q.upsertFeature name False db
+            let f' = (modelToFeature f) { isEnabled = False }
+            Q.upsertFeature name f' db
             (Just (Entity _ feature)) <- Q.getFeatureByName name db
-            featureEnabled feature `shouldBe` False
+            M.featureEnabled feature `shouldBe` False

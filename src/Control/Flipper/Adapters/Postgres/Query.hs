@@ -37,14 +37,14 @@ Inserts a new feature record if one with a matching name does not already exist.
 Updates an existing feature record if one with a matching name already exists.
 -}
 upsertFeature :: (MonadIO app, Monad m)
-              => T.FeatureName -> Bool -> DBAccess m -> app ()
-upsertFeature fName isEnabled dbAccess = do
+              => T.FeatureName -> T.Feature -> DBAccess m -> app ()
+upsertFeature fName feature dbAccess = do
     mFeature <- getFeatureByName fName dbAccess
     case mFeature of
         Nothing ->
-            liftIO (mkFeature fName isEnabled) >>= void . flip addFeature dbAccess
+            liftIO (featureToModel feature) >>= void . flip addFeature dbAccess
         (Just (Entity fId f)) ->
-            replaceFeature fId (f { featureEnabled = isEnabled }) dbAccess
+            replaceFeature fId (f { featureEnabled = T.isEnabled feature }) dbAccess
 
 {- |
 Inserts a new feature record.

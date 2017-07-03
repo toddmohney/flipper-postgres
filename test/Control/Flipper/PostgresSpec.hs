@@ -71,7 +71,9 @@ spec = around Cfg.withConfig $ do
                 featureCount dbAccess `shouldReturn` 0
 
                 (_, _) <- runMyContext pool (MyState 0) $ do
-                    let fs = Features $ Map.fromList [ ("my-new-feature", True), ("some-other-feature", True) ]
+                    let feature1 = (FP.mkFeature "my-new-feature") { isEnabled = True }
+                    let feature2 = (FP.mkFeature "some-other-feature") { isEnabled = True }
+                    let fs = Features $ Map.fromList [ (featureName feature1, feature1), (featureName feature2, feature2) ]
                     updateFeatures fs
 
                 featureCount dbAccess `shouldReturn` 2
@@ -80,15 +82,22 @@ spec = around Cfg.withConfig $ do
                 featureCount dbAccess `shouldReturn` 0
 
                 void $ runMyContext pool (MyState 0) $ do
-                    let fs = Features $ Map.fromList [ ("my-new-feature", True), ("some-other-feature", True) ]
+                    let feature1 = (FP.mkFeature "my-new-feature") { isEnabled = True }
+                    let feature2 = (FP.mkFeature "some-other-feature") { isEnabled = True }
+                    let featureList = [ (featureName feature1, feature1), (featureName feature2, feature2) ]
+                    let fs = Features $ Map.fromList featureList
                     updateFeatures fs
                     liftIO $ featureCount dbAccess `shouldReturn` 2
 
-                    let fs' = Features $ Map.fromList [ ("my-new-feature", False), ("some-other-feature", False), ("hi-there", False) ]
+                    let feature1' = (FP.mkFeature "my-new-feature") { isEnabled = False }
+                    let feature2' = (FP.mkFeature "some-other-feature") { isEnabled = False }
+                    let feature3' = (FP.mkFeature "hi-there") { isEnabled = False }
+                    let featureList' = [ (featureName feature1', feature1'), (featureName feature2', feature2'), (featureName feature3', feature3') ]
+                    let fs' = Features $ Map.fromList featureList'
                     updateFeatures fs'
                     liftIO $ featureCount dbAccess `shouldReturn` 3
 
                     fs'' <- FP.getFeatures
-                    liftIO $ all (== False) (Map.elems (unFeatures fs'')) `shouldBe` True
+                    liftIO $ all (\f -> isEnabled f == False) (Map.elems (unFeatures fs'')) `shouldBe` True
 
 

@@ -18,7 +18,9 @@ module Control.Flipper.Adapters.Postgres.Models
     , module Database.Persist.Postgresql
     ) where
 
+import qualified Data.Map.Strict                            as Map
 import           Data.Monoid                 ((<>))
+import qualified Data.Set as S
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import qualified Data.Text.Encoding          as T
@@ -55,6 +57,30 @@ mkFeature fName isEnabled = do
         , featureUpdated = now
         , featureCreated = now
         }
+
+modelsToFeatures :: [Entity Feature] -> F.Features
+modelsToFeatures fs = F.Features $ Map.fromList $ map (toFeatureTuple . modelToFeature . entityVal) fs
+
+modelToFeature :: Feature -> F.Feature
+modelToFeature feature = F.Feature
+    { F.featureName = featureName feature
+    , F.isEnabled = featureEnabled feature
+    , F.enabledEntities = S.empty
+    , F.enabledPercentage = 0
+    }
+
+featureToModel :: F.Feature -> IO Feature
+featureToModel f = do
+    now <- getCurrentTime
+    return Feature
+        { featureName = F.featureName f
+        , featureEnabled = F.isEnabled f
+        , featureUpdated = now
+        , featureCreated = now
+        }
+
+toFeatureTuple :: F.Feature -> (F.FeatureName, F.Feature)
+toFeatureTuple f = (F.featureName f, f)
 
 {- |
 Performs non-destructive database schema migrations.
