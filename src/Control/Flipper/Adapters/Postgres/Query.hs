@@ -4,13 +4,15 @@ module Control.Flipper.Adapters.Postgres.Query
     ( getFeatures
     , getFeatureByName
     , addFeature
-    , replaceFeature
     , upsertFeature
+    , actorCount
     , featureCount
     , M.mkFeature
     ) where
 
-import           Control.Monad                              (void)
+import           Control.Monad                              (forM_, void)
+import           Data.Set (Set)
+import qualified Data.Set as S
 import           Data.Time.Clock                            (getCurrentTime)
 
 import           Control.Flipper.Adapters.Postgres.DBAccess as DB
@@ -65,11 +67,12 @@ upsertFeature feature dbAccess = do
     case mFeature of
         Nothing ->
             liftIO (featureToModel feature) >>= void . flip addFeature' dbAccess
-        (Just (Entity fId f)) ->
-            replaceFeature fId (f { featureEnabled = T.isEnabled feature }) dbAccess
+        (Just (Entity fId _)) -> do
+            updatedFeature <- liftIO $ featureToModel feature
+            replaceFeature fId updatedFeature dbAccess
 
 {- |
-Inserts a new feature record.
+Inserts a new feature record and all associated actors.
 -}
 addFeature :: (MonadIO app, Monad m)
            => T.Feature -> DBAccess m -> app (Key Feature)
@@ -78,20 +81,46 @@ addFeature feature dbAccess = do
     addFeature' model dbAccess
 
 {- |
-Inserts a new feature record.
+Inserts a new feature record and all associated actors.
 -}
 addFeature' :: (MonadIO app, Monad m)
-           => Feature -> DBAccess m -> app (Key Feature)
-addFeature' feature DBAccess{..} = liftIO $ runDb (insertFeature feature)
+           => FeatureWithActorIds -> DBAccess m -> app (Key Feature)
+addFeature' (feature, actorIds) dbAccess@DBAccess{..} = do
+    key <- liftIO $ runDb (insertFeature feature)
+    addActors actorIds key dbAccess
+    return key
+
+addActors :: (MonadIO app, Monad m)
+          => Set T.ActorId -> FeatureId -> DBAccess m -> app ()
+addActors actorIds fId DBAccess{..} =
+    liftIO $ forM_ actorIds $ \aId ->
+        actorIdToModel aId fId >>= runDb . insertActor
+
+deleteActors :: (MonadIO app, Monad m)
+             => Set T.ActorId -> FeatureId -> DBAccess m -> app ()
+deleteActors actorIds fId DBAccess{..} =
+    liftIO $ forM_ actorIds $ runDb . deleteActor fId
 
 {- |
 Updates an existing feature record.
 -}
 replaceFeature :: (MonadIO app, Monad m)
-               => FeatureId -> Feature -> DBAccess m -> app ()
-replaceFeature fId feature DBAccess{..} = do
+               => FeatureId -> FeatureWithActorIds -> DBAccess m -> app ()
+replaceFeature fId (feature, newActorIds) dbAccess@DBAccess{..} = do
     now <- liftIO getCurrentTime
+    oldActorIds <- (S.fromList . map (actorActorId . entityVal)) <$> liftIO (runDb (selectActorsByFeatureId fId))
+
+    let (toAdd, toDelete) = actorDiff oldActorIds newActorIds
+    addActors toAdd fId dbAccess
+    deleteActors toDelete fId dbAccess
+
     liftIO $ runDb (updateFeature fId (feature { featureUpdated = now }))
+
+actorDiff :: Set T.ActorId -> Set T.ActorId -> (Set T.ActorId, Set T.ActorId)
+actorDiff oldActorIds newActorIds =
+    let actorIdsToAdd = S.difference newActorIds oldActorIds
+        actorIdsToDelete = S.difference oldActorIds newActorIds
+    in (actorIdsToAdd, actorIdsToDelete)
 
 {- |
 Returns a count of all feature records
@@ -99,3 +128,10 @@ Returns a count of all feature records
 featureCount :: (MonadIO app, Monad m)
              => DBAccess m -> app Int
 featureCount DBAccess{..} = liftIO $ runDb countFeatures
+
+{- |
+Returns a count of all actor records
+-}
+actorCount :: (MonadIO app, Monad m)
+             => DBAccess m -> app Int
+actorCount DBAccess{..} = liftIO $ runDb countActors

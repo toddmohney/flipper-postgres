@@ -1,8 +1,12 @@
 module Control.Flipper.Adapters.Postgres.Internal.Query
     ( selectFeatures
+    , selectActorsByFeatureId
     , findFeature
+    , insertActor
+    , deleteActor
     , insertFeature
     , updateFeature
+    , countActors
     , countFeatures
     ) where
 
@@ -16,10 +20,28 @@ selectFeatures :: SqlPersistT IO [Entity Feature]
 selectFeatures = selectList [] []
 
 {- |
+Selects all actors for a given feature records
+-}
+selectActorsByFeatureId :: FeatureId -> SqlPersistT IO [Entity Actor]
+selectActorsByFeatureId fId = selectList [ActorFeatureId ==. fId] []
+
+{- |
 Selects a feature record by its unique name
 -}
 findFeature :: T.FeatureName -> SqlPersistT IO (Maybe (Entity Feature))
 findFeature fName = getBy (UniqueFeatureName fName)
+
+{- |
+Inserts a new actor record.
+-}
+insertActor :: Actor -> SqlPersistT IO (Key Actor)
+insertActor = insert
+
+{- |
+Deletes an actor record.
+-}
+deleteActor :: FeatureId -> T.ActorId -> SqlPersistT IO ()
+deleteActor fId aId = deleteBy (UniqueActorIdFeatureId aId fId)
 
 {- |
 Inserts a new feature record.
@@ -38,3 +60,9 @@ Returns a count of all feature records
 -}
 countFeatures :: SqlPersistT IO Int
 countFeatures = count ([] :: [Filter Feature])
+
+{- |
+Returns a count of all feature records
+-}
+countActors :: SqlPersistT IO Int
+countActors = count ([] :: [Filter Actor])

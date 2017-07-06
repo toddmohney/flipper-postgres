@@ -20,6 +20,7 @@ module Control.Flipper.Adapters.Postgres.Models
 
 import qualified Data.Map.Strict                            as Map
 import           Data.Monoid                 ((<>))
+import           Data.Set (Set)
 import qualified Data.Set as S
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
@@ -35,6 +36,8 @@ share [mkPersist sqlSettings, mkMigrate "migrateAll"] [persistLowerCase|
         featureId FeatureId sqltype=bigint
         updated UTCTime default=now()
         created UTCTime default=now()
+        UniqueActorIdFeatureId actorId featureId
+        deriving Show Eq
 
     Feature sql=flipper_features
         name F.FeatureName sqltype=text
@@ -61,6 +64,8 @@ instance PersistField F.Percentage where
   fromPersistValue (PersistInt64 pct) = Right (F.Percentage (fromIntegral pct))
   fromPersistValue e = Left ("Not PersistInt64 " <> T.pack (show e))
 
+type FeatureWithActorIds = (Feature, Set F.ActorId)
+
 {- |
 Convienience constructor
 -}
@@ -82,20 +87,36 @@ modelToFeature :: Feature -> F.Feature
 modelToFeature feature = F.Feature
     { F.featureName = featureName feature
     , F.isEnabled = featureEnabled feature
-    , F.enabledEntities = S.empty
+    , F.enabledActors = S.empty
     , F.enabledPercentage = featureEnabledPercentage feature
     }
 
-featureToModel :: F.Feature -> IO Feature
+actorIdToModel :: F.ActorId -> FeatureId -> IO Actor
+actorIdToModel a f = do
+    now <- getCurrentTime
+    return Actor
+        { actorActorId = a
+        , actorFeatureId = f
+        , actorUpdated = now
+        , actorCreated = now
+        }
+
+featureToModel :: F.Feature -> IO FeatureWithActorIds
 featureToModel f = do
     now <- getCurrentTime
-    return Feature
-        { featureName = F.featureName f
-        , featureEnabled = F.isEnabled f
-        , featureEnabledPercentage = F.enabledPercentage f
-        , featureUpdated = now
-        , featureCreated = now
-        }
+    return (feature now, actorIds)
+    where
+        actorIds :: Set F.ActorId
+        actorIds = F.enabledActors f
+
+        feature :: UTCTime -> Feature
+        feature now = Feature
+            { featureName = F.featureName f
+            , featureEnabled = F.isEnabled f
+            , featureEnabledPercentage = F.enabledPercentage f
+            , featureUpdated = now
+            , featureCreated = now
+            }
 
 toFeatureTuple :: F.Feature -> (F.FeatureName, F.Feature)
 toFeatureTuple f = (F.featureName f, f)
