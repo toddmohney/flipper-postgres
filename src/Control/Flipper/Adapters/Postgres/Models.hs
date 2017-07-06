@@ -18,10 +18,10 @@ module Control.Flipper.Adapters.Postgres.Models
     , module Database.Persist.Postgresql
     ) where
 
-import qualified Data.Map.Strict                            as Map
+import qualified Data.Map.Strict             as Map
 import           Data.Monoid                 ((<>))
-import           Data.Set (Set)
-import qualified Data.Set as S
+import           Data.Set                    (Set)
+import qualified Data.Set                    as S
 import           Data.Text                   (Text)
 import qualified Data.Text                   as T
 import           Data.Time                   (UTCTime (..), getCurrentTime)

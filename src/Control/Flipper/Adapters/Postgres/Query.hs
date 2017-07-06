@@ -11,8 +11,8 @@ module Control.Flipper.Adapters.Postgres.Query
     ) where
 
 import           Control.Monad                              (forM_, void)
-import           Data.Set (Set)
-import qualified Data.Set as S
+import           Data.Set                                   (Set)
+import qualified Data.Set                                   as S
 import           Data.Time.Clock                            (getCurrentTime)
 
 import           Control.Flipper.Adapters.Postgres.DBAccess as DB
@@ -45,7 +45,7 @@ getFeatureByName :: (MonadIO app, Monad m)
 getFeatureByName fName dbAccess = do
     mFeatureEnt <- getFeatureByName' fName dbAccess
     case mFeatureEnt of
-        Nothing -> return Nothing
+        Nothing                   -> return Nothing
         (Just (Entity _ feature)) -> return . Just . modelToFeature $ feature
 
 {- |
