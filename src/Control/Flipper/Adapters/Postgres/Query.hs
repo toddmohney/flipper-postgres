@@ -42,11 +42,15 @@ Returns a domain model
 -}
 getFeatureByName :: (MonadIO app, Monad m)
                  => T.FeatureName -> DBAccess m -> app (Maybe T.Feature)
-getFeatureByName fName dbAccess = do
+getFeatureByName fName dbAccess@DBAccess{..} = do
     mFeatureEnt <- getFeatureByName' fName dbAccess
     case mFeatureEnt of
         Nothing                   -> return Nothing
-        (Just (Entity _ feature)) -> return . Just . modelToFeature $ feature
+        (Just (Entity fId feature)) -> do
+            -- use Esqueleto to join this relation
+            actors <- liftIO $ runDb (selectActorsByFeatureId fId)
+            let f = (modelToFeature feature) { T.enabledActors = S.fromList (map (actorActorId . entityVal) actors) }
+            return . Just $ f
 
 {- |
 Selects a feature record by its unique name
