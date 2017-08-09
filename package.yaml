@@ -1,5 +1,5 @@
 name: feature-flipper-postgres
-version: '0.1.0.1'
+version: '0.1.1.1'
 synopsis: A minimally obtrusive feature flag library
 description: A minimally obtrusive feature flag library
 category: Web
