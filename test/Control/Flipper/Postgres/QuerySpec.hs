@@ -5,6 +5,10 @@ import qualified Data.Set                                as S
 import           Test.Hspec
 
 import           Control.Flipper.Adapters.Postgres
+    ( ActorId(..)
+    , Config(..)
+    , Feature(..)
+    )
 import qualified Control.Flipper.Adapters.Postgres.Query as Q
 import qualified Control.Flipper.Types                   as T
 import qualified Helpers.Config                          as Cfg
